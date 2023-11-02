@@ -1,4 +1,9 @@
-geojson_path = './bounds/geojsons_bb/UCNRS/Sedgwick_Reserve_bb.geojson'
+### Gets list of images that overlap with a given date, collects relevant metadata, and dumps it all to a csv
+
+
+
+geojson_path = './bounds/geojsons/UCNRS/Sedgwick_Reserve.geojson'
+output_file = './sedgwick_img_ids.csv'
 
 
 import requests
@@ -11,6 +16,8 @@ import shutil
 import geopandas as gpd
 from rasterio.merge import merge
 import json
+import pandas as pd
+import numpy as np
 from requests.auth import HTTPBasicAuth
 
 
@@ -90,6 +97,13 @@ result = \
 def handle_page(page):
     for item in page["features"]:
         item_ids.append(item['id'])
+        dates.append(item['properties']['acquired'])
+        try:
+            visible_percents.append(item['properties']['visible_percent'])
+        except:
+            visible_percents.append(np.NaN)
+        ground_controls.append(item['properties']['ground_control'])
+        satellite_azimuths.append(item['properties']['satellite_azimuth'])
         # print(item['id'])
 
 # pagination
@@ -102,10 +116,29 @@ def fetch_page(search_url):
 
 # stores all image ids in a list
 item_ids = []
+dates = []
+visible_percents = []
+ground_controls = []
+satellite_azimuths = []
+
 search_url = result.json()['_links']['_self']
 fetch_page(search_url)
 
-# dumps img ids to a text file
-with open('all_img_ids.txt', 'w') as f:
-    for line in item_ids:
-        f.write(f"{line}\n")
+# store img metadata in a dataframe
+outputs = {
+    'Image_IDs': item_ids,
+    'Datetime': dates,
+    'Visible_Percent': visible_percents,
+    'Ground_Control': ground_controls,
+    'Satellite_Azimuth': satellite_azimuths
+}
+df = pd.DataFrame(outputs)
+
+# some quick QOL adjustments...
+df['Date'] = df['Datetime'].str[:10]
+df['Time_UTC'] = df['Datetime'].str[11:-1]
+df = df.drop('Datetime', axis=1)
+
+
+# save outputs to csv
+df.to_csv(output_file, index=False)

@@ -1,8 +1,0 @@
-GeoJSON sources:
-
-Santa Barbara County -- https://catalog.data.gov/dataset/tiger-line-shapefile-2019-county-santa-barbara-county-ca-topological-faces-polygons-with-all-ge
-Channel Islands -- https://catalog.data.gov/dataset/tiger-line-shapefile-2019-county-santa-barbara-county-ca-topological-faces-polygons-with-all-ge
-Sequoia Kings Canyon -- https://maps.princeton.edu/catalog/stanford-yt083gy4037
-State of California -- https://www.google.com/search?client=firefox-b-1-d&q=state+of+california+shapefile
-
-UCNRS Boundaries obtained from Kerri Johnson at UCSB NRS.
