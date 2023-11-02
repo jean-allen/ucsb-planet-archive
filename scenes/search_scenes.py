@@ -9,13 +9,6 @@ output_file = './sedgwick_img_ids.csv'
 import requests
 import os
 import json
-import urllib.request
-import glob
-import rasterio
-import shutil
-import geopandas as gpd
-from rasterio.merge import merge
-import json
 import pandas as pd
 import numpy as np
 from requests.auth import HTTPBasicAuth
