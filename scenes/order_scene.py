@@ -30,12 +30,15 @@ def order_img(img_id, order_name='Single Image Order'):
     return result.json()['_links']['_self']
 
 
-
+# Get the state of an order using the link
+# Possible values: queued, running, success, partial, failed, cancelled
 def check_on_order(link):
     result = requests.get(link, auth=HTTPBasicAuth(os.environ['PL_API_KEY'], ''))
     return result.json()['state']
 
-def orderAllScenes(link):
+
+# Downloads all scenes at a given search result link to the local directory
+def order_all_Scenes(link):
     result = requests.get(link, auth=HTTPBasicAuth(os.environ['PL_API_KEY'], '')).json()
     files = result['_links']['results']
     for file in files:
@@ -45,7 +48,7 @@ def orderAllScenes(link):
         with open(filename,'wb') as f:
             f.write(r.content)
 
-
+# Waits for an order to be ready and then starts downloading imagery
 def download_order(link):
     result = requests.get(link, auth=HTTPBasicAuth(os.environ['PL_API_KEY'], ''))
     state = result.json()['state']
@@ -59,14 +62,14 @@ def download_order(link):
             try:
                 result = requests.get(link, auth=HTTPBasicAuth(os.environ['PL_API_KEY'], ''))
                 print(datetime.datetime.now().time(), '  ', str(result.json()['last_message'])+'...')
-            except KeyError:
+            except KeyError: # sometimes state isn't in the returned json for some reason
                 time.sleep(5)
                 continue
             state = result.json()['state']
             time.sleep(5)
         elif state=='success':
             print('All scenes processed successfully. Now beginning download...')
-            orderAllScenes(link)
+            order_all_scenes(link)
             isDone=True
         elif state=='partial':
             isDone=True
