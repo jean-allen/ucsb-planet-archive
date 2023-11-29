@@ -14,7 +14,7 @@ import numpy as np
 import xarray as xa
 from arosics import COREG
 
-
+## TEST
 
 # Shapefile of the place you're building an NDVI stack for
 shapefile = 'Sedgwick_Reserve.geojson'
