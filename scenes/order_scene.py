@@ -5,8 +5,8 @@ import requests
 import time
 from requests.auth import HTTPBasicAuth
 
-
-this_img = "20230628_182417_92_24a4"
+# This is the image ID of the image we want to download
+this_img = '20210901_180754_0f4e_3B_AnalyticMS_SR_clip.tif'
 
 # Takes in image ID string, outputs download link
 def order_img(img_id, order_name='Single Image Order'):
@@ -79,6 +79,6 @@ def download_order(link):
             isDone=True
 
 
-
+# Liftoff!
 this_link = order_img(this_img)
 download_order(this_link)

@@ -14,17 +14,16 @@ import numpy as np
 import xarray as xa
 from arosics import COREG
 
-## TEST
-
 # Shapefile of the place you're building an NDVI stack for
 shapefile = 'Sedgwick_Reserve.geojson'
 imagery_directory = './imagery_clipped_harmonized'
 
 gdf = gpd.read_file(shapefile).to_crs(epsg=32610)
 
-
-
-
+# takes an image and a udm2 open in rioxarray and applies the udm2 to the image using band 1 (clear/not-clear)
+def apply_udm2(img, udm):
+    img_masked = img.where(udm[0,:,:]==1, other=np.nan)
+    return img_masked
 
 # takes an image and a geodataframe and saves out a cropped TIF
 def clip_file(img, gdf, output_file_name):
@@ -47,7 +46,11 @@ def make_mosaic(list_of_imgs, output_file_name, dst_epsg, clip_gdf):
         this_img = rxr.open_rasterio(os.path.join(imagery_directory, file))
         if (this_img.rio.crs != dst_crs):
             this_img = this_img.rio.reproject(dst_crs)
-        imgs.append(this_img)
+        udm_path = file.split('3B')[0] + '3B_udm2_clip.tif'
+        this_udm = rxr.open_rasterio(os.path.join(imagery_directory, udm_path))
+        if (this_udm.rio.crs != dst_crs):
+            this_udm = this_udm.rio.reproject(dst_crs)
+        imgs.append(apply_udm2(this_img, this_udm))
 
     # Check percentage overlap between the polygon and the rasters
     # This process minimizes seam lines -- scenes that cover more of the ROI will be prioritized
