@@ -38,7 +38,7 @@ def check_on_order(link):
 
 
 # Downloads all scenes at a given search result link to the local directory
-def order_all_Scenes(link):
+def order_all_scenes(link):
     result = requests.get(link, auth=HTTPBasicAuth(os.environ['PL_API_KEY'], '')).json()
     files = result['_links']['results']
     for file in files:
