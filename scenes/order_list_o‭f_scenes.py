@@ -32,11 +32,12 @@ with open(geojson_path) as f:
 
 # Takes in list of image ID strings, outputs download link
 def order_list_of_imgs(id_list, order_name='List of Images Order'):
-    # Check which images already exist in the output directory
+    # Check which dates we already have imagery for
     original_length = len(id_list)
     existing_files = os.listdir(output_directory)
-    existing_ids = [file.split('_')[0] for file in existing_files]
-    id_list = [id for id in id_list if id not in existing_ids]
+    existing_datetimes = ['_'.join(file.split('_')[0:2]) for file in existing_files]  # makes list of dates and times for which we already have imagery
+    existing_datetimes = list(set(existing_datetimes))  # gets only unique dates and times
+    id_list = [id for id in id_list if id[0:15] not in existing_datetimes]
     if len(id_list) < original_length:
         print('Found ' + str(original_length - len(id_list)) + ' images that already exist in the output directory. Skipping...')
     print('Ordering ' + str(len(id_list)) + ' images...')
