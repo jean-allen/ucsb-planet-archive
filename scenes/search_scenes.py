@@ -3,7 +3,8 @@
 
 
 geojson_path = './bounds/geojsons/seki.json'
-output_file = './seki_img_ids.csv'
+output_file = './seki_img_ids_2016.csv'
+
 
 
 import requests
@@ -36,16 +37,16 @@ geometry_filter = {
 }
 
 
-# # filter images acquired in a certain date range
-# # if a date range filter is added, make sure to add it to "big_filter" below
-# date_range_filter = {
-#   "type": "DateRangeFilter",
-#   "field_name": "acquired",
-#   "config": {
-#     "gte": "2016-01-01T00:00:00.000Z",
-#     "lte": "2017-01-01T00:00:00.000Z"
-#   }
-# }
+# filter images acquired in a certain date range
+# if a date range filter is added, make sure to add it to "big_filter" below
+date_range_filter = {
+  "type": "DateRangeFilter",
+  "field_name": "acquired",
+  "config": {
+    "gte": "2016-01-01T00:00:00.000Z",
+    "lte": "2017-01-01T00:00:00.000Z"
+  }
+}
 
 
 # filter any images which are more than 50% clouds
@@ -69,7 +70,7 @@ type_filter = {
 # mash 'em all together
 big_filter = {
   "type": "AndFilter",
-  "config": [geometry_filter, type_filter, cloud_cover_filter]
+  "config": [geometry_filter, type_filter, cloud_cover_filter, date_range_filter]
 }
 
 
@@ -101,7 +102,6 @@ if result.status_code == 413:
         
         # removes every other point on the input geometry to reduce the size of the request body
         # this will reduce the detail of the geometry, but it will still be roughly the same shape
-        
         all_points = geometry['features'][0]['geometry']['coordinates'][0]
         new_points = []
         for i in range(0, len(all_points), 2):

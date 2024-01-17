@@ -1,3 +1,12 @@
+### Orders a single scene from Planet's API and downloads it to the local directory
+
+
+
+# This is the image ID of the image we want to download
+this_img = '20210901_180754_0f4e_3B_AnalyticMS_SR_clip.tif'
+
+
+
 import datetime
 import json
 import os
@@ -5,8 +14,6 @@ import requests
 import time
 from requests.auth import HTTPBasicAuth
 
-# This is the image ID of the image we want to download
-this_img = '20210901_180754_0f4e_3B_AnalyticMS_SR_clip.tif'
 
 # Takes in image ID string, outputs download link
 def order_img(img_id, order_name='Single Image Order'):
@@ -30,13 +37,6 @@ def order_img(img_id, order_name='Single Image Order'):
     return result.json()['_links']['_self']
 
 
-# Get the state of an order using the link
-# Possible values: queued, running, success, partial, failed, cancelled
-def check_on_order(link):
-    result = requests.get(link, auth=HTTPBasicAuth(os.environ['PL_API_KEY'], ''))
-    return result.json()['state']
-
-
 # Downloads all scenes at a given search result link to the local directory
 def order_all_scenes(link):
     result = requests.get(link, auth=HTTPBasicAuth(os.environ['PL_API_KEY'], '')).json()
@@ -47,6 +47,7 @@ def order_all_scenes(link):
         r = requests.get(file['location'], auth=HTTPBasicAuth(os.environ['PL_API_KEY'], ''))
         with open(filename,'wb') as f:
             f.write(r.content)
+
 
 # Waits for an order to be ready and then starts downloading imagery
 def download_order(link):
