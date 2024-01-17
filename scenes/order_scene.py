@@ -3,7 +3,7 @@
 
 
 # This is the image ID of the image we want to download
-this_img = '20210901_180754_0f4e_3B_AnalyticMS_SR_clip.tif'
+this_img = '20230628_182417_92_24a4'
 
 
 
