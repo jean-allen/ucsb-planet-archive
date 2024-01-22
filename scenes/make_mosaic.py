@@ -78,6 +78,9 @@ def make_mosaic(list_of_imgs, output_file_name, epsg, clip_gdf):
     # Make mosaic...
     this_mosaic = merge_arrays(imgs_sorted, nodata=np.nan)
 
+    # Divide by 10000 to apply scale factor
+    this_mosaic = this_mosaic/10000
+
     # Convert DataArray to Dataset so that we can save out the multi-band rasters
     bands = ['R', 'G', 'B', 'NIR']
     output = xa.Dataset()
