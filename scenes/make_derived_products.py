@@ -20,17 +20,8 @@ make_tgi = True             # Triangular Greenness Index
 
 
 # Import packages
-import datetime
 import os
-import geopandas as gpd
-import rasterio
-import json
-from rasterio.mask import mask
-from rasterio.crs import CRS
 import rioxarray as rxr
-from rioxarray.merge import merge_arrays
-import numpy as np
-import xarray as xa
 
 
 # List all .tif files in the mosaic directory
@@ -103,6 +94,7 @@ def get_tgi(img_path):
 
 #### Make derived products ####
 
+# NDVI: Normalized Difference Vegetation Index
 if make_ndvi:
     # Check if there is an NDVI directory; if not, make one
     if not os.path.exists(os.path.join(indices_directory, 'ndvi')):
@@ -112,16 +104,18 @@ if make_ndvi:
     existing_files = os.listdir(os.path.join(indices_directory, 'ndvi'))
     existing_datetimes = ['_'.join(file.split('_')[0:2]) for file in existing_files]
     existing_datetimes = list(set(existing_datetimes))
-    mosaics = [mosaic for mosaic in mosaics if mosaic[:-4] not in existing_datetimes]
+    ndvi_mosaics = [mosaic for mosaic in mosaics if mosaic[:-4] not in existing_datetimes]
+
+    print('NDVI images already found for ' + str(len(mosaics)-len(ndvi_mosaics)) + ' images. Calculating NDVI for ' + str(len(ndvi_mosaics)) + ' dates...')
 
     # Loop through all mosaics and make an NDVI mosaic for each one
-    for mosaic in mosaics:
+    for mosaic in ndvi_mosaics:
         print('Making NDVI mosaic for ' + mosaic + '...')
         ndvi = get_ndvi(os.path.join(mosaic_directory, mosaic))
         ndvi.rio.to_raster(os.path.join(indices_directory, 'ndvi', mosaic[:-4] + '_ndvi.tif'))
 
 
-
+# NDWI: Normalized Difference Water Index
 if make_ndwi:
     # Check if there is an NDWI directory; if not, make one
     if not os.path.exists(os.path.join(indices_directory, 'ndwi')):
@@ -131,16 +125,18 @@ if make_ndwi:
     existing_files = os.listdir(os.path.join(indices_directory, 'ndwi'))
     existing_datetimes = ['_'.join(file.split('_')[0:2]) for file in existing_files]
     existing_datetimes = list(set(existing_datetimes))
-    mosaics = [mosaic for mosaic in mosaics if mosaic[:-4] not in existing_datetimes]
+    ndwi_mosaics = [mosaic for mosaic in mosaics if mosaic[:-4] not in existing_datetimes]
+
+    print('NDWI images already found for ' + str(len(mosaics)-len(ndwi_mosaics)) + ' images. Calculating NDWI for ' + str(len(ndwi_mosaics)) + ' dates...')
 
     # Loop through all mosaics and make an NDWI mosaic for each one
-    for mosaic in mosaics:
+    for mosaic in ndwi_mosaics:
         print('Making NDWI mosaic for ' + mosaic + '...')
         ndwi = get_ndwi(os.path.join(mosaic_directory, mosaic))
         ndwi.rio.to_raster(os.path.join(indices_directory, 'ndwi', mosaic[:-4] + '_ndwi.tif'))
 
 
-
+# MSAVI2: Modified Soil Adjusted Vegetation Index 2
 if make_msavi2:
     # Check if there is an MSAVI2 directory; if not, make one
     if not os.path.exists(os.path.join(indices_directory, 'msavi2')):
@@ -150,16 +146,18 @@ if make_msavi2:
     existing_files = os.listdir(os.path.join(indices_directory, 'msavi2'))
     existing_datetimes = ['_'.join(file.split('_')[0:2]) for file in existing_files]
     existing_datetimes = list(set(existing_datetimes))
-    mosaics = [mosaic for mosaic in mosaics if mosaic[:-4] not in existing_datetimes]
+    masvi2_mosaics = [mosaic for mosaic in mosaics if mosaic[:-4] not in existing_datetimes]
+
+    print('MSAVI2 images already found for ' + str(len(mosaics)-len(masvi2_mosaics)) + ' images. Calculating MSAVI2 for ' + str(len(masvi2_mosaics)) + ' dates...')
 
     # Loop through all mosaics and make an MSAVI2 mosaic for each one
-    for mosaic in mosaics:
+    for mosaic in masvi2_mosaics:
         print('Making MSAVI2 mosaic for ' + mosaic + '...')
         msavi2 = get_msavi2(os.path.join(mosaic_directory, mosaic))
         msavi2.rio.to_raster(os.path.join(indices_directory, 'msavi2', mosaic[:-4] + '_msavi2.tif'))
 
 
-
+# MTVI2: Modified Triangular Vegetation Index 2
 if make_mtvi2:
     # Check if there is an MTVI2 directory; if not, make one
     if not os.path.exists(os.path.join(indices_directory, 'mtvi2')):
@@ -169,16 +167,18 @@ if make_mtvi2:
     existing_files = os.listdir(os.path.join(indices_directory, 'mtvi2'))
     existing_datetimes = ['_'.join(file.split('_')[0:2]) for file in existing_files]
     existing_datetimes = list(set(existing_datetimes))
-    mosaics = [mosaic for mosaic in mosaics if mosaic[:-4] not in existing_datetimes]
+    mtvi2_mosaics = [mosaic for mosaic in mosaics if mosaic[:-4] not in existing_datetimes]
+
+    print('MTVI2 images already found for ' + str(len(mosaics)-len(mtvi2_mosaics)) + ' images. Calculating MTVI2 for ' + str(len(mtvi2_mosaics)) + ' dates...') 
 
     # Loop through all mosaics and make an MTVI2 mosaic for each one
-    for mosaic in mosaics:
+    for mosaic in mtvi2_mosaics:
         print('Making MTVI2 mosaic for ' + mosaic + '...')
         mtvi2 = get_mtvi2(os.path.join(mosaic_directory, mosaic))
         mtvi2.rio.to_raster(os.path.join(indices_directory, 'mtvi2', mosaic[:-4] + '_mtvi2.tif'))
         
 
-
+# VARI: Visible Atmospherically Resistant Index
 if make_vari:
     # Check if there is an VARI directory; if not, make one
     if not os.path.exists(os.path.join(indices_directory, 'vari')):
@@ -188,16 +188,18 @@ if make_vari:
     existing_files = os.listdir(os.path.join(indices_directory, 'vari'))
     existing_datetimes = ['_'.join(file.split('_')[0:2]) for file in existing_files]
     existing_datetimes = list(set(existing_datetimes))
-    mosaics = [mosaic for mosaic in mosaics if mosaic[:-4] not in existing_datetimes]
+    vari_mosaics = [mosaic for mosaic in mosaics if mosaic[:-4] not in existing_datetimes]
+
+    print('VARI images already found for ' + str(len(mosaics)-len(vari_mosaics)) + ' images. Calculating VARI for ' + str(len(vari_mosaics)) + ' dates...')
 
     # Loop through all mosaics and make an VARI mosaic for each one
-    for mosaic in mosaics:
+    for mosaic in vari_mosaics:
         print('Making VARI mosaic for ' + mosaic + '...')
         vari = get_vari(os.path.join(mosaic_directory, mosaic))
         vari.rio.to_raster(os.path.join(indices_directory, 'vari', mosaic[:-4] + '_vari.tif'))
 
 
-
+# TGI: Triangular Greenness Index
 if make_tgi:
     # Check if there is an TGI directory; if not, make one
     if not os.path.exists(os.path.join(indices_directory, 'tgi')):
@@ -207,10 +209,12 @@ if make_tgi:
     existing_files = os.listdir(os.path.join(indices_directory, 'tgi'))
     existing_datetimes = ['_'.join(file.split('_')[0:2]) for file in existing_files]
     existing_datetimes = list(set(existing_datetimes))
-    mosaics = [mosaic for mosaic in mosaics if mosaic[:-4] not in existing_datetimes]
+    tgi_mosaics = [mosaic for mosaic in mosaics if mosaic[:-4] not in existing_datetimes]
+
+    print('TGI images already found for ' + str(len(mosaics)-len(tgi_mosaics)) + ' images. Calculating TGI for ' + str(len(tgi_mosaics)) + ' dates...')
 
     # Loop through all mosaics and make an TGI mosaic for each one
-    for mosaic in mosaics:
+    for mosaic in tgi_mosaics:
         print('Making TGI mosaic for ' + mosaic + '...')
         tgi = get_tgi(os.path.join(mosaic_directory, mosaic))
         tgi.rio.to_raster(os.path.join(indices_directory, 'tgi', mosaic[:-4] + '_tgi.tif'))
