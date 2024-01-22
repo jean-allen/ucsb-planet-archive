@@ -114,8 +114,8 @@ else:
     print('Skipping ' + str(len(dates) - len(date_list)) + ' dates that already have mosaics. Making mosaics for ' + str(len(date_list)) + ' dates...')
 
 # make mosaics for all dates in date_list
-for date in date_list:
-    print('Working on ' + date + '...')
+for count, date in enumerate(date_list):
+    print(str(datetime.datetime.now().time()) + '    Working on ' + date + ' (' + str(count+1) + ' of ' + str(len(date_list)) + ')...')
     # filter out images that aren't from this date
     this_date_files = [filename for filename in os.listdir(imagery_directory) if filename.startswith(date)]
     if len(this_date_files)==0:
