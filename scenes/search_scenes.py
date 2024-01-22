@@ -2,8 +2,8 @@
 
 
 
-geojson_path = './bounds/geojsons/seki.json'
-output_file = './seki_img_ids_2016.csv'
+geojson_path = 'E:/coal_oil_point/Coal_Oil_Point_Natural_Reserve.geojson'
+output_file = 'E:/coal_oil_point/copr_img_ids.csv'
 
 
 
@@ -37,16 +37,16 @@ geometry_filter = {
 }
 
 
-# filter images acquired in a certain date range
-# if a date range filter is added, make sure to add it to "big_filter" below
-date_range_filter = {
-  "type": "DateRangeFilter",
-  "field_name": "acquired",
-  "config": {
-    "gte": "2016-01-01T00:00:00.000Z",
-    "lte": "2017-01-01T00:00:00.000Z"
-  }
-}
+# # filter images acquired in a certain date range
+# # if a date range filter is added, make sure to add it to "big_filter" below
+# date_range_filter = {
+#   "type": "DateRangeFilter",
+#   "field_name": "acquired",
+#   "config": {
+#     "gte": "2016-01-01T00:00:00.000Z",
+#     "lte": "2017-01-01T00:00:00.000Z"
+#   }
+# }
 
 
 # filter any images which are more than 50% clouds
@@ -70,7 +70,7 @@ type_filter = {
 # mash 'em all together
 big_filter = {
   "type": "AndFilter",
-  "config": [geometry_filter, type_filter, cloud_cover_filter, date_range_filter]
+  "config": [geometry_filter, type_filter, cloud_cover_filter]
 }
 
 

@@ -141,6 +141,9 @@ def download_order(link):
             print(str(datetime.datetime.now().time()) + '    ' + 'Order cancelled. Exiting...')
             isDone=True
 
+# Check if output directory exists; if not, make it
+if not os.path.exists(output_directory):
+    os.makedirs(output_directory)
 
 # Liftoff!
 list_of_download_links = order_list_of_imgs(ids)
