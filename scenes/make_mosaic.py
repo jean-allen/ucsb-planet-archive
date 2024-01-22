@@ -1,3 +1,20 @@
+### This script takes a directory of PlanetScope scenes and makes a mosaic of all the scenes for a given day
+### Takes us from L1 to L2
+
+
+
+# Directory containing input L1 scenes
+imagery_directory = 'E:/sedgwick_reserve/L1_harmonized_scenes'
+
+# Directory to save mosaics to
+output_directory = 'E:/sedgwick_reserve/L2_mosaics'
+
+# GeoJSON of the place you're building an NDVI stack for
+shapefile = 'Sedgwick_Reserve.geojson'
+
+
+
+# Import packages
 import os
 import geopandas as gpd
 import rasterio
@@ -14,10 +31,7 @@ import numpy as np
 import xarray as xa
 from arosics import COREG
 
-# Shapefile of the place you're building an NDVI stack for
-shapefile = 'Sedgwick_Reserve.geojson'
-imagery_directory = './imagery_clipped_harmonized'
-
+# Read in the shapefile
 gdf = gpd.read_file(shapefile).to_crs(epsg=32610)
 
 # takes an image and a udm2 open in rioxarray and applies the udm2 to the image using band 1 (clear/not-clear)

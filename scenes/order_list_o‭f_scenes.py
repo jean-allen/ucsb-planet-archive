@@ -5,7 +5,7 @@
 # CSV file containing list of image IDs
 ids_file_path = './sedgwick_img_ids.csv'
 
-# GEOJSON file containing the AOI; imagery will be clipped to this extent
+# GeoJSON file containing the AOI; imagery will be clipped to this extent
 geojson_path = './bounds/geojsons_bb/UCNRS/Sedgwick_Reserve_bb.geojson'
 
 # Directory to download imagery to
@@ -13,6 +13,7 @@ output_directory = 'E:/sedgwick_reserve/L1_harmonized_scenes'
 
 
 
+# Import packages
 import datetime
 import json
 import os
