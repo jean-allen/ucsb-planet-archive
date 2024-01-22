@@ -57,7 +57,11 @@ def make_mosaic(list_of_imgs, output_file_name, epsg, clip_gdf):
         if (this_img.rio.crs != dst_crs):
             this_img = this_img.rio.reproject(dst_crs)
         udm_path = file.split('3B')[0] + '3B_udm2_clip.tif'     # 3B is the code for the analytic SR data product
-        this_udm = rxr.open_rasterio(os.path.join(imagery_directory, udm_path))
+        try:
+            this_udm = rxr.open_rasterio(os.path.join(imagery_directory, udm_path))
+        except:
+            print('UDM not found for ' + file + '. Skipping...')
+            continue
         if (this_udm.rio.crs != dst_crs):
             this_udm = this_udm.rio.reproject(dst_crs)
         imgs.append(apply_udm2(this_img, this_udm))
@@ -125,8 +129,6 @@ for count, date in enumerate(date_list):
         continue
     # get only the SR images
     this_date_images = [os.path.join(imagery_directory,filename) for filename in this_date_files if filename.endswith('harmonized_clip.tif')]
-    # make the mosaic
-    make_mosaic(this_date_images, os.path.join(output_directory, date + '.tif'), dst_epsg, gdf)
     # save out metadata to a json file
     metadata_dict = {
         'created': datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
@@ -137,5 +139,8 @@ for count, date in enumerate(date_list):
         }
     with open(os.path.join(output_directory, date + '_metadata.json'), 'w') as outfile:
         json.dump(metadata_dict, outfile)
+    # make the mosaic
+    make_mosaic(this_date_images, os.path.join(output_directory, date + '.tif'), dst_epsg, gdf)
+
 
 
