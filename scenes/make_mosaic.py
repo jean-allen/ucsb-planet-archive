@@ -23,13 +23,10 @@ import os
 import geopandas as gpd
 import rasterio
 import json
-# from rasterio.warp import reproject, Resampling
 from rasterio.mask import mask
 from rasterio.crs import CRS
-# from datetime import datetime, timedelta
 import rioxarray as rxr
 from rioxarray.merge import merge_arrays
-# from glob import glob
 import numpy as np
 import xarray as xa
 
@@ -41,16 +38,6 @@ gdf = gpd.read_file(input_geojson).to_crs(epsg=32610)
 def apply_udm2(img, udm):
     img_masked = img.where(udm[0,:,:]==1, other=np.nan)
     return img_masked
-
-# # takes an image and a geodataframe and saves out a cropped TIF
-# def clip_file(img, gdf, output_file_name):
-#     with rasterio.open(img) as src:
-#         try:
-#             clipped, transform = mask(src, gdf.geometry, crop=True)
-#             with rasterio.open(output_file_name, "w", driver='GTiff', width=clipped.shape[2], height=clipped.shape[1], count=clipped.shape[0], dtype=clipped.dtype, crs=src.crs, transform=transform) as dest:
-#                 dest.write(clipped)
-#         except ValueError:
-#             print('No sausage')
 
 # takes a list of file paths and outputs a mosaic of all those files
 # list of images: list of file paths to images

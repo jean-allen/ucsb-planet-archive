@@ -1,3 +1,8 @@
+# create desired
+
+
+
+
 # Calculates and saves out an NDVI image
 def ndvi_planet(img_path,output_path):
     with rasterio.open(img_path) as src:
