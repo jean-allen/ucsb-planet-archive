@@ -1,2 +1,8 @@
 # imagery files
 *.tif
+
+# office files
+*.pptx
+*.docx
+*.xlsx
+*.xlsb

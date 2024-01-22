@@ -10,7 +10,7 @@ imagery_directory = 'E:/sedgwick_reserve/L1_harmonized_scenes'
 output_directory = 'E:/sedgwick_reserve/L2_mosaics'
 
 # GeoJSON of the place you're building an NDVI stack for
-shapefile = 'E:/sedgwick_reserve/Sedgwick_Reserve.geojson'
+input_geojson = 'E:/sedgwick_reserve/Sedgwick_Reserve.geojson'
 
 # Desired EPSG code of the output mosaic
 dst_epsg = 32610
@@ -18,39 +18,39 @@ dst_epsg = 32610
 
 
 # Import packages
+import datetime
 import os
 import geopandas as gpd
 import rasterio
-from rasterio.merge import merge
-from rasterio.io import MemoryFile
-from rasterio.warp import reproject, Resampling
+import json
+# from rasterio.warp import reproject, Resampling
 from rasterio.mask import mask
 from rasterio.crs import CRS
-from datetime import datetime, timedelta
+# from datetime import datetime, timedelta
 import rioxarray as rxr
 from rioxarray.merge import merge_arrays
-from glob import glob
+# from glob import glob
 import numpy as np
 import xarray as xa
-from arosics import COREG
+
 
 # Read in the GeoJSON file; this will be used in the mosaic function
-gdf = gpd.read_file(shapefile).to_crs(epsg=32610)
+gdf = gpd.read_file(input_geojson).to_crs(epsg=32610)
 
 # takes an image and a udm2 open in rioxarray and applies the udm2 to the image using band 1 (clear/not-clear)
 def apply_udm2(img, udm):
     img_masked = img.where(udm[0,:,:]==1, other=np.nan)
     return img_masked
 
-# takes an image and a geodataframe and saves out a cropped TIF
-def clip_file(img, gdf, output_file_name):
-    with rasterio.open(img) as src:
-        try:
-            clipped, transform = mask(src, gdf.geometry, crop=True)
-            with rasterio.open(output_file_name, "w", driver='GTiff', width=clipped.shape[2], height=clipped.shape[1], count=clipped.shape[0], dtype=clipped.dtype, crs=src.crs, transform=transform) as dest:
-                dest.write(clipped)
-        except ValueError:
-            print('No sausage')
+# # takes an image and a geodataframe and saves out a cropped TIF
+# def clip_file(img, gdf, output_file_name):
+#     with rasterio.open(img) as src:
+#         try:
+#             clipped, transform = mask(src, gdf.geometry, crop=True)
+#             with rasterio.open(output_file_name, "w", driver='GTiff', width=clipped.shape[2], height=clipped.shape[1], count=clipped.shape[0], dtype=clipped.dtype, crs=src.crs, transform=transform) as dest:
+#                 dest.write(clipped)
+#         except ValueError:
+#             print('No sausage')
 
 # takes a list of file paths and outputs a mosaic of all those files
 # list of images: list of file paths to images
@@ -80,15 +80,13 @@ def make_mosaic(list_of_imgs, output_file_name, epsg, clip_gdf):
     polygon = gdf_crs.geometry.iloc[0]
     num_pixels = []
     for raster in imgs:
-        mask = rasterio.features.geometry_mask([gdf.iloc[0].geometry],
-                                                out_shape=raster.shape[-2:],
-                                                transform=raster.rio.transform(),
-                                                invert=True)
-        num_pixels.append(np.sum(mask))
+        # Counts pixels that overlap with the polygon
+        num_pixels.append(np.count_nonzero(raster.rio.clip([polygon], gdf_crs.crs, drop=False).values[0,:,:]))
 
     # Sort imgs bassed on how many pixels they have that overlaps with the GDF
     # merge_arrays uses a reverse painters algorithm to make the mosaic, so they need to be in the correct order
     imgs_sorted = [x for _,x in sorted(zip(num_pixels, imgs), key=lambda pair:pair[0])]
+    imgs_sorted.reverse()
 
     # Make mosaic...
     this_mosaic = merge_arrays(imgs_sorted, nodata=np.nan)
@@ -110,13 +108,7 @@ all_imgs = [filename for filename in os.listdir(imagery_directory) if filename.e
 dates = [filename.split('_')[0] for filename in all_imgs]
 dates = list(set(dates))
 
-# # Lists dates that we're getting mosaics for
-# start_date = datetime(2022, 1, 1)
-# end_date = datetime(2022, 12, 31)
-# date_list = []
-# while start_date <= end_date:
-#     date_list.append(start_date.strftime('%Y%m%d'))
-#     start_date += timedelta(days=1)
+
 
 # Check which dates we already have mosaics for
 if not os.path.exists(output_directory):
@@ -142,9 +134,18 @@ for date in date_list:
     if len(this_date_files)==0:
         continue
     # get only the SR images
-    this_date_images = [filename for filename in this_date_files if filename.endswith('harmonized_clip.tif')]
+    this_date_images = [os.path.join(imagery_directory,filename) for filename in this_date_files if filename.endswith('harmonized_clip.tif')]
     # make the mosaic
-    make_mosaic(this_date_images, './mosaics/' + date + '.tif', dst_epsg, gdf)
+    make_mosaic(this_date_images, os.path.join(output_directory, date + '.tif'), dst_epsg, gdf)
+    # save out metadata to a json file
+    metadata_dict = {
+        'created': datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        'source_dir': imagery_directory,
+        'scenes': this_date_images,
+        'epsg': dst_epsg,
+        'geojson_used': input_geojson
+        }
+    with open(os.path.join(output_directory, date + '_metadata.json'), 'w') as outfile:
+        json.dump(metadata_dict, outfile)
 
-mosaic_list = os.listdir('./mosaics')
 
