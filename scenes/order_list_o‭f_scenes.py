@@ -3,13 +3,13 @@
 
 
 # CSV file containing list of image IDs
-ids_file_path = './sedgwick_img_ids.csv'
+ids_file_path = 'E:/coal_oil_point/copr_img_ids.csv'
 
 # GeoJSON file containing the AOI; imagery will be clipped to this extent
-geojson_path = './bounds/geojsons_bb/UCNRS/Sedgwick_Reserve_bb.geojson'
+geojson_path = 'E:/coal_oil_point/Coal_Oil_Point_Natural_Reserve_bb.geojson'
 
 # Directory to download imagery to
-output_directory = 'E:/sedgwick_reserve/L1_harmonized_scenes'
+output_directory = 'E:/coal_oil_point/L1_harmonized_scenes'
 
 
 
@@ -123,7 +123,8 @@ def download_order(link):
                 result = requests.get(link, auth=HTTPBasicAuth(os.environ['PL_API_KEY'], ''))
                 print(str(datetime.datetime.now().time()) + '    ' + str(result.json()['last_message'])+'...')
             except KeyError: # sometimes state isn't in the returned json for some reason
-                time.sleep(5)
+                print(str(datetime.datetime.now().time()) + '    ' + 'Order running...')
+                time.sleep(4)
                 continue
             state = result.json()['state']
             time.sleep(5)
